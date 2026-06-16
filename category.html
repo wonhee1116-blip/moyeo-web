@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>모여 · 카테고리 선택</title>
+<style>
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+:root{
+  --grad:linear-gradient(135deg,#4F7CFF 0%,#6AA8FF 100%);
+  --grad-soft:linear-gradient(135deg,#EEF0FF 0%,#E7F2FF 100%);
+  --primary:#4F7CFF; --primary-2:#6AA8FF;
+  --ink:#15172B; --ink-2:#5A5E78; --ink-3:#9A9EB5;
+  --line:#ECEEF5; --line-2:#E0E3EE; --card:#FFFFFF; --bg:#F5F6FB; --fill:#F1F3FA; --stage:#DDE0EC;
+  --green:#1FB573; --amber:#FF9F2E; --sky:#6AA8FF; --danger:#F0506E;
+  --r-lg:24px; --r-md:16px; --r-sm:12px;
+  --shadow:0 10px 34px rgba(40,46,110,.10);
+  --shadow-card:0 2px 16px rgba(40,46,110,.06);
+  --shadow-btn:0 10px 22px rgba(79,124,255,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;background:var(--stage);color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;letter-spacing:-.01em;word-break:keep-all;}
+.chip,.cta,.search span{white-space:nowrap;}
+#stage{display:flex;align-items:center;justify-content:center;width:100%;height:100dvh;}
+.scale-wrap{transform-origin:center center;}
+.phone{position:relative;width:390px;height:844px;background:#0c0d14;border-radius:54px;padding:13px;box-shadow:0 44px 90px rgba(20,24,55,.42),0 0 0 2px #2a2c3a;flex:0 0 auto;}
+.phone__screen{position:relative;width:100%;height:100%;background:var(--bg);border-radius:42px;overflow:hidden;display:flex;flex-direction:column;}
+.notch{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:120px;height:33px;background:#0c0d14;border-radius:20px;z-index:60;}
+@media(max-width:480px){body{background:var(--bg);}.phone{width:100vw;height:100dvh;border-radius:0;padding:0;box-shadow:none;}.phone__screen{border-radius:0;}.notch{display:none;}}
+.statusbar{height:50px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font-size:15px;font-weight:600;z-index:50;}
+.statusbar .sb-right{display:flex;align-items:center;gap:7px;}
+.appbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:6px 16px 12px;}
+.appbar h1{font-size:17px;font-weight:700;white-space:nowrap;}
+.appbar .ab-side{min-width:56px;display:flex;align-items:center;}
+.appbar .ab-side.right{justify-content:flex-end;}
+.iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:11px;cursor:pointer;color:inherit;text-decoration:none;}
+.iconbtn:active{background:rgba(0,0,0,.05);}
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding-bottom:18px;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{width:0;}
+.section-h{font-size:22px;font-weight:800;line-height:1.34;padding:6px 20px 14px;}
+.section-h em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.subhint{padding:0 20px 14px;font-size:12.5px;color:var(--ink-3);}
+.subhint.tight{margin-top:-8px;}
+.cat-block{padding:4px 20px 0;display:flex;flex-direction:column;gap:26px;}
+.cat-group .cg-label{display:flex;align-items:baseline;gap:8px;margin-bottom:13px;}
+.cat-group .cg-label b{font-size:16px;font-weight:800;}
+.cat-group .cg-label span{font-size:12px;color:var(--ink-3);font-weight:600;white-space:nowrap;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;padding:0;}
+.chip{border:1px solid var(--line-2);background:var(--card);border-radius:14px;padding:12px 17px;font-size:14px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:.14s;box-shadow:var(--shadow-card);}
+.chip.sel{background:var(--grad);border-color:transparent;color:#fff;box-shadow:var(--shadow-btn);}
+.cta-wrap{flex:0 0 auto;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(0deg,var(--bg) 72%,rgba(245,246,251,0));}
+.cta{display:block;width:100%;border:none;background:var(--grad);color:#fff;font-family:inherit;font-size:16px;font-weight:700;padding:16px;border-radius:16px;cursor:pointer;box-shadow:var(--shadow-btn);transition:transform .12s;text-align:center;text-decoration:none;}
+.cta:active{transform:scale(.98);}
+.toast{position:absolute;left:50%;bottom:120px;transform:translateX(-50%) translateY(14px);background:rgba(21,23,43,.95);color:#fff;font-size:13.5px;font-weight:600;padding:13px 20px;border-radius:14px;opacity:0;transition:.3s;z-index:80;white-space:nowrap;max-width:300px;text-align:center;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* v2 override */
+:root{--r-lg:16px;--r-md:12px;--r-sm:10px;--ink:#191F28;--ink-2:#4E5968;--ink-3:#8B95A1;--line:#EFF1F5;--line-2:#E5E8EE;--fill:#F4F6F9;--bg:#FFFFFF;--stage:#E7EAF0;--shadow:0 2px 10px rgba(30,40,90,.06);--shadow-card:none;--shadow-btn:0 6px 18px rgba(79,124,255,.20);}
+body{background:var(--stage);letter-spacing:-.015em;}
+.phone__screen{background:#fff;}
+@media(max-width:480px){body{background:#fff;}}
+.section-h{font-size:24px;font-weight:800;line-height:1.32;padding:8px 20px 8px;}
+.subhint.tight{margin-top:-2px;}
+.subhint{font-size:13px;color:var(--ink-3);}
+.statusbar{height:46px;}
+.appbar{padding:4px 12px 14px;}
+.appbar h1,.appbar.plain h1{font-size:17px;font-weight:700;}
+.cat-block{gap:28px;padding-top:6px;}
+.chip{border-radius:10px!important;padding:11px 16px;font-weight:600;box-shadow:none!important;border:1px solid var(--line-2);background:#fff;}
+.chip.sel{background:var(--grad);border-color:transparent;color:#fff;box-shadow:none!important;}
+.cat-group.multi .cg-label span{color:var(--primary);}
+.chip.multi{display:inline-flex;align-items:center;gap:7px;}
+.chip.multi .cbox{width:16px;height:16px;border-radius:5px;border:1.8px solid var(--line-2);display:inline-flex;align-items:center;justify-content:center;color:transparent;transition:.14s;}
+.chip.multi.sel .cbox{background:#fff;border-color:#fff;color:var(--primary);}
+.cta-wrap{background:linear-gradient(0deg,#fff 74%,rgba(255,255,255,0));}
+.cta{border-radius:12px;font-weight:700;padding:16px;box-shadow:none;}
+.cta:not(.disabled):not(.ghost){box-shadow:var(--shadow-btn);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scale-wrap">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone__screen">
+
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="sb-right">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2A11 11 0 0 1 16 4.2M3.4 6.8a7.3 7.3 0 0 1 10.2 0M5.9 9.3a3.7 3.7 0 0 1 5.2 0"/><circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none"/></svg>
+          <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity=".4" stroke-width="1"/><rect x="3" y="3" width="17" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" fill-opacity=".5"/></svg>
+        </div>
+      </div>
+
+      <div class="appbar plain">
+        <div class="ab-side"><a class="iconbtn" href="result.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a></div>
+        <h1>카테고리</h1>
+        <div class="ab-side right"></div>
+      </div>
+
+      <div class="scroll">
+        <h2 class="section-h">어떤 모임인지<br><em>골라주세요</em></h2>
+        <p class="subhint tight">선택할수록 더 잘 맞는 장소를 추천해요</p>
+
+        <div class="cat-block">
+          <!-- 대분류: 단일 선택 -->
+          <div class="cat-group" id="group-main">
+            <div class="cg-label"><b>대분류</b><span>모임 종류</span></div>
+            <div class="chips">
+              <button class="chip sel">밥집</button>
+              <button class="chip">카페</button>
+              <button class="chip">술집</button>
+              <button class="chip">놀거리</button>
+            </div>
+          </div>
+
+          <!-- 중분류: 단일 선택 -->
+          <div class="cat-group" id="group-mid">
+            <div class="cg-label"><b>중분류</b><span>모임 성격</span></div>
+            <div class="chips">
+              <button class="chip">24시간 영업</button>
+              <button class="chip">소개팅</button>
+              <button class="chip sel">회식</button>
+              <button class="chip">생일파티</button>
+              <button class="chip">데이트</button>
+              <button class="chip">친구모임</button>
+            </div>
+          </div>
+
+          <!-- 소분류: 다중 선택 -->
+          <div class="cat-group multi" id="group-sub">
+            <div class="cg-label"><b>소분류</b><span>분위기·조건 · 여러 개 선택 가능</span></div>
+            <div class="chips">
+              <button class="chip multi sel">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>분위기 좋은 곳
+              </button>
+              <button class="chip multi sel">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>인기 핫플
+              </button>
+              <button class="chip multi">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>실내
+              </button>
+              <button class="chip multi">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>조용한 곳
+              </button>
+              <button class="chip multi">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>가성비 좋은 곳
+              </button>
+              <button class="chip multi">
+                <span class="cbox"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>주차 가능
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수정됨: 버튼 클릭 시 저장 후 이동 -->
+      <div class="cta-wrap">
+        <button class="cta" id="cat-cta">장소 추천받기</button>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  /* 화면 스케일 */
+  function fit() {
+    var wrap = document.querySelector(".scale-wrap");
+    if (!wrap) return;
+    if (window.innerWidth <= 480) { wrap.style.transform = "none"; return; }
+    var s = Math.min((window.innerWidth - 24) / 390, (window.innerHeight - 24) / 844, 1.08);
+    wrap.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+  window.addEventListener("load", fit);
+  fit();
+
+  /* 토스트 */
+  var toastTimer;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "toast"; el.id = "toast";
+      (document.querySelector(".phone__screen") || document.body).appendChild(el);
+    }
+    el.textContent = msg; el.classList.add("show"); clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2000);
+  }
+
+  /* 칩 선택 토글 */
+  var catBlock = document.querySelector(".cat-block");
+  if (catBlock) {
+    catBlock.addEventListener("click", function (e) {
+      var chip = e.target.closest(".chip");
+      if (!chip) return;
+      var group = chip.closest(".cat-group");
+      if (group && group.classList.contains("multi")) {
+        /* 소분류: 다중 선택 */
+        chip.classList.toggle("sel");
+      } else {
+        /* 대·중분류: 단일 선택 */
+        chip.closest(".chips").querySelectorAll(".chip").forEach(function (x) {
+          x.classList.remove("sel");
+        });
+        chip.classList.add("sel");
+      }
+    });
+  }
+
+  /* -----------------------------------------------------------------------
+     수정됨: 장소 추천받기 버튼 — 선택값을 localStorage에 저장 후 이동
+  ----------------------------------------------------------------------- */
+  var ctaBtn = document.getElementById("cat-cta");
+  if (ctaBtn) {
+    ctaBtn.addEventListener("click", function () {
+      /* 대분류 선택값 */
+      var mainChip = document.querySelector("#group-main .chip.sel");
+      var mainVal  = mainChip ? mainChip.textContent.trim() : "";
+
+      /* 중분류 선택값 */
+      var midChip = document.querySelector("#group-mid .chip.sel");
+      var midVal  = midChip ? midChip.textContent.trim() : "";
+
+      /* 소분류 선택값 (다중) */
+      var subVals = [];
+      document.querySelectorAll("#group-sub .chip.sel").forEach(function (c) {
+        /* .cbox 텍스트 제외하고 텍스트만 추출 */
+        var clone = c.cloneNode(true);
+        var cbox  = clone.querySelector(".cbox");
+        if (cbox) cbox.remove();
+        subVals.push(clone.textContent.trim());
+      });
+
+      /* JSON으로 묶어서 localStorage 저장 */
+      var catObj = { main: mainVal, mid: midVal, sub: subVals };
+      try {
+        localStorage.setItem("moyeo_category", JSON.stringify(catObj));
+      } catch (e) {}
+
+      /* place.html 로 이동 */
+      location.href = "place.html";
+    });
+  }
+
+  window.MOYEO = { toast: toast, fit: fit };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>모여 · 장소 추천 결과</title>
+<style>
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+:root{
+  --grad:linear-gradient(135deg,#4F7CFF 0%,#6AA8FF 100%);
+  --grad-soft:linear-gradient(135deg,#EEF0FF 0%,#E7F2FF 100%);
+  --primary:#4F7CFF; --primary-2:#6AA8FF;
+  --ink:#191F28; --ink-2:#4E5968; --ink-3:#8B95A1;
+  --line:#EFF1F5; --line-2:#E5E8EE; --card:#FFFFFF; --bg:#FFFFFF; --fill:#F4F6F9; --stage:#E7EAF0;
+  --green:#1FB573; --amber:#FF9F2E; --sky:#6AA8FF; --danger:#F0506E;
+  --r-lg:16px; --r-md:12px; --r-sm:10px;
+  --shadow:0 2px 10px rgba(30,40,90,.06);
+  --shadow-card:none;
+  --shadow-btn:0 6px 18px rgba(79,124,255,.20);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  background:var(--stage);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100dvh;overflow:hidden;letter-spacing:-.015em;word-break:keep-all;
+}
+#stage{display:flex;align-items:center;justify-content:center;width:100%;height:100dvh;}
+.scale-wrap{transform-origin:center center;}
+.phone{position:relative;width:390px;height:844px;background:#0c0d14;border-radius:54px;padding:13px;
+  box-shadow:0 44px 90px rgba(20,24,55,.42),0 0 0 2px #2a2c3a;flex:0 0 auto;}
+.phone__screen{position:relative;width:100%;height:100%;background:#fff;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;}
+.notch{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:120px;height:33px;background:#0c0d14;border-radius:20px;z-index:60;}
+@media(max-width:480px){body{background:#fff;}.phone{width:100vw;height:100dvh;border-radius:0;padding:0;box-shadow:none;}.phone__screen{border-radius:0;}.notch{display:none;}}
+
+/* 상태바 */
+.statusbar{height:46px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font-size:15px;font-weight:600;z-index:50;}
+.statusbar .sb-right{display:flex;align-items:center;gap:7px;}
+
+/* 앱바 */
+.appbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:4px 12px 14px;}
+.appbar h1{font-size:17px;font-weight:700;white-space:nowrap;}
+.appbar .ab-side{min-width:56px;display:flex;align-items:center;}
+.appbar .ab-side.right{justify-content:flex-end;}
+.iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:11px;cursor:pointer;color:inherit;text-decoration:none;}
+.iconbtn:active{background:rgba(0,0,0,.05);}
+
+/* 스크롤 영역 */
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding-bottom:24px;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{width:0;}
+
+/* 헤더 */
+.section-h{font-size:24px;font-weight:800;line-height:1.32;padding:8px 20px 8px;}
+.section-h em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.subhint{padding:0 20px 16px;font-size:13px;color:var(--ink-3);}
+
+/* 수정됨: 선택된 카테고리 뱃지 표시 영역 */
+.cat-badge-wrap{
+  padding:0 20px 14px;
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.cat-badge{
+  display:inline-block;
+  background:var(--grad-soft);
+  color:var(--primary);
+  font-size:12px;font-weight:700;
+  padding:5px 11px;
+  border-radius:20px;
+}
+
+/* 장소 목록 */
+.cand-list{padding:4px 20px 0;display:flex;flex-direction:column;gap:12px;}
+
+.place-cand{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  cursor:default;
+}
+
+.place-cand .pc-thumb{
+  width:56px;height:56px;border-radius:10px;
+  background:var(--grad);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;color:#fff;opacity:.92;
+}
+
+.place-cand .pc-meta{flex:1;min-width:0;}
+.place-cand .pc-meta b{font-size:15px;font-weight:700;display:block;margin-bottom:3px;}
+.place-cand .pc-meta .pc-type{font-size:12px;color:var(--ink-3);font-weight:600;display:block;line-height:1.4;}
+.place-cand .pc-meta .pc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.place-cand .pc-meta .pc-tags span{background:var(--fill);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;color:var(--ink-2);white-space:nowrap;}
+
+/* 토스트 */
+.toast{position:absolute;left:50%;bottom:80px;transform:translateX(-50%) translateY(14px);background:rgba(21,23,43,.95);color:#fff;font-size:13.5px;font-weight:600;padding:13px 20px;border-radius:14px;opacity:0;transition:.3s;z-index:80;white-space:nowrap;max-width:300px;text-align:center;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scale-wrap">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone__screen">
+
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="sb-right">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2A11 11 0 0 1 16 4.2M3.4 6.8a7.3 7.3 0 0 1 10.2 0M5.9 9.3a3.7 3.7 0 0 1 5.2 0"/><circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none"/></svg>
+          <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity=".4" stroke-width="1"/><rect x="3" y="3" width="17" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" fill-opacity=".5"/></svg>
+        </div>
+      </div>
+
+      <div class="appbar plain">
+        <div class="ab-side"><a class="iconbtn" href="category.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a></div>
+        <h1>추천 결과</h1>
+        <div class="ab-side right"></div>
+      </div>
+
+      <div class="scroll">
+        <h2 class="section-h"><em id="cand-center">을지로입구역</em> 주변에서<br>이런 곳은 어때요?</h2>
+
+        <!-- 수정됨: 선택한 카테고리 뱃지 표시 -->
+        <div class="cat-badge-wrap" id="cat-badges"></div>
+
+        <p class="subhint">선택한 카테고리에 맞는 추천 장소예요</p>
+
+        <!-- 수정됨: JS로 카테고리에 맞게 동적 렌더링 -->
+        <div class="cand-list" id="cands"></div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  /* -----------------------------------------------------------------------
+     화면 크기에 맞게 폰 프레임 스케일 조정
+  ----------------------------------------------------------------------- */
+  function fit() {
+    var wrap = document.querySelector(".scale-wrap");
+    if (!wrap) return;
+    if (window.innerWidth <= 480) { wrap.style.transform = "none"; return; }
+    var s = Math.min((window.innerWidth - 24) / 390, (window.innerHeight - 24) / 844, 1.08);
+    wrap.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+  window.addEventListener("load", fit);
+  fit();
+
+  /* -----------------------------------------------------------------------
+     토스트 메시지
+  ----------------------------------------------------------------------- */
+  var toastTimer;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "toast";
+      el.id = "toast";
+      (document.querySelector(".phone__screen") || document.body).appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2000);
+  }
+
+  /* -----------------------------------------------------------------------
+     페이지 이동
+  ----------------------------------------------------------------------- */
+  function navigate(href) { location.href = href; }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-toast]");
+    if (t) toast(t.getAttribute("data-toast"));
+    var n = e.target.closest("[data-nav]");
+    if (n && !n.classList.contains("disabled")) { e.preventDefault(); navigate(n.getAttribute("data-nav")); }
+  });
+
+  /* -----------------------------------------------------------------------
+     수정됨: 카테고리별 장소 데이터 정의
+     대분류(main)에 따라 장소 목록이 완전히 달라짐
+  ----------------------------------------------------------------------- */
+  var PLACE_DATA = {
+    /* 밥집 */
+    "밥집": [
+      { name: "한우리 한식당", type: "한식 맛집", walk: 3,  tags: ["한식", "단체석", "주차 가능"] },
+      { name: "이탈리아노", type: "이탈리안 레스토랑", walk: 5, tags: ["파스타", "분위기 좋음", "와인"] },
+      { name: "스시로", type: "초밥·일식", walk: 4, tags: ["초밥", "가성비", "점심 특선"] },
+      { name: "양자강", type: "중식당", walk: 6, tags: ["짜장면", "단체 가능", "회식"] },
+      { name: "소담 국밥", type: "24시간 국밥집", walk: 2, tags: ["24시간", "국밥", "해장"] }
+    ],
+    /* 카페 */
+    "카페": [
+      { name: "A카페", type: "분위기 좋은 카페", walk: 3, tags: ["분위기 좋음", "콘센트", "조용함"] },
+      { name: "B카페", type: "브런치 카페", walk: 5, tags: ["단체 가능", "브런치", "넓은 좌석"] },
+      { name: "C카페", type: "디저트 카페", walk: 6, tags: ["디저트", "아늑함", "주차 가능"] },
+      { name: "D카페", type: "루프탑 카페", walk: 7, tags: ["루프탑", "야외 좌석", "인기 핫플"] },
+      { name: "E카페", type: "가성비 카페", walk: 4, tags: ["가성비", "24시간", "대형 공간"] }
+    ],
+    /* 술집 */
+    "술집": [
+      { name: "을지 호프", type: "분위기 있는 맥주집", walk: 3, tags: ["생맥주", "안주", "분위기 좋음"] },
+      { name: "이자카야 유", type: "일본식 이자카야", walk: 5, tags: ["사케", "꼬치", "인기 핫플"] },
+      { name: "와인바 온", type: "와인 바", walk: 4, tags: ["와인", "조용함", "소개팅"] },
+      { name: "포차 한마당", type: "전통 포차", walk: 2, tags: ["소주", "안주 다양", "24시간"] },
+      { name: "루프탑 바", type: "루프탑 바", walk: 8, tags: ["루프탑", "칵테일", "야경"] }
+    ],
+    /* 놀거리 */
+    "놀거리": [
+      { name: "볼링 클럽", type: "실내 볼링장", walk: 4, tags: ["실내", "단체 가능", "주차 가능"] },
+      { name: "VR 어드벤처", type: "VR 체험관", walk: 3, tags: ["VR", "인기 핫플", "실내"] },
+      { name: "방탈출 미스터리", type: "방탈출 카페", walk: 5, tags: ["방탈출", "단체", "예약 추천"] },
+      { name: "노래방 파크", type: "코인 노래방", walk: 2, tags: ["노래방", "가성비", "24시간"] },
+      { name: "보드게임 카페", type: "보드게임 카페", walk: 6, tags: ["보드게임", "조용함", "음료 포함"] }
+    ]
+  };
+
+  /* -----------------------------------------------------------------------
+     수정됨: 카페 아이콘 SVG
+  ----------------------------------------------------------------------- */
+  var ICONS = {
+    "밥집": '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6h3.5"/><path d="M16.5 13H20"/><path d="M15 22l1-7"/></svg>',
+    "카페": '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a3 3 0 1 1 0 6h-1"/><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M6 1v2M10 1v2M14 1v2"/></svg>',
+    "술집": '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="M20 2H4l4 9a4 4 0 0 0 8 0l4-9z"/></svg>',
+    "놀거리": '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+  };
+
+  /* -----------------------------------------------------------------------
+     수정됨: localStorage에서 카테고리 선택값 읽기
+  ----------------------------------------------------------------------- */
+  var savedCat = null;
+  try { savedCat = localStorage.getItem("moyeo_category"); } catch (e) {}
+
+  /* 수정됨: 저장된 값이 없으면 URL 파라미터도 시도 */
+  if (!savedCat) {
+    var params = new URLSearchParams(window.location.search);
+    savedCat = params.get("cat");
+  }
+
+  /* 수정됨: 선택된 카테고리 파싱 (JSON 형식: {main, mid, sub[]}) */
+  var catObj = null;
+  try {
+    if (savedCat) catObj = JSON.parse(savedCat);
+  } catch (e) {
+    /* 구버전 문자열 호환 */
+    catObj = { main: savedCat, mid: null, sub: [] };
+  }
+
+  /* -----------------------------------------------------------------------
+     수정됨: 중간지점 이름 반영
+  ----------------------------------------------------------------------- */
+  var center = null;
+  try { center = localStorage.getItem("moyeo_center"); } catch (e) {}
+  var cc = document.getElementById("cand-center");
+  if (center && cc) cc.textContent = center;
+
+  /* -----------------------------------------------------------------------
+     수정됨: 선택한 카테고리 뱃지 렌더링
+  ----------------------------------------------------------------------- */
+  var badgeWrap = document.getElementById("cat-badges");
+  if (catObj && badgeWrap) {
+    var badges = [];
+    if (catObj.main) badges.push(catObj.main);
+    if (catObj.mid)  badges.push(catObj.mid);
+    if (catObj.sub && catObj.sub.length) badges = badges.concat(catObj.sub);
+    badges.forEach(function (label) {
+      var span = document.createElement("span");
+      span.className = "cat-badge";
+      span.textContent = label;
+      badgeWrap.appendChild(span);
+    });
+  }
+
+  /* -----------------------------------------------------------------------
+     수정됨: 대분류에 맞는 장소 목록 렌더링
+     대분류가 없거나 매칭 실패 시 카페 목록을 기본값으로 사용
+  ----------------------------------------------------------------------- */
+  var mainCat = (catObj && catObj.main) ? catObj.main : "카페";
+  var places  = PLACE_DATA[mainCat] || PLACE_DATA["카페"];
+  var icon    = ICONS[mainCat]      || ICONS["카페"];
+
+  var nearName = center || "을지로입구역";
+  var candsEl  = document.getElementById("cands");
+
+  if (candsEl) {
+    candsEl.innerHTML = places.map(function (p) {
+      var tagsHtml = p.tags.map(function (t) {
+        return '<span>' + t + '</span>';
+      }).join("");
+      return [
+        '<div class="place-cand">',
+        '  <div class="pc-thumb">' + icon + '</div>',
+        '  <div class="pc-meta">',
+        '    <b>' + p.name + '</b>',
+        '    <span class="pc-type">' + p.type + ' · ' + nearName + ' 도보 ' + p.walk + '분</span>',
+        '    <div class="pc-tags">' + tagsHtml + '</div>',
+        '  </div>',
+        '</div>'
+      ].join("\n");
+    }).join("\n");
+  }
+
+  window.MOYEO = { toast: toast, navigate: navigate, fit: fit };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>모여 · 중간지점 순위</title>
+  <style>
+    /* =======================================================================
+   모여 (MOYEO) — 공통 스타일시트
+   ======================================================================= */
+    @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+    :root {
+      --grad: linear-gradient(135deg, #4F7CFF 0%, #6AA8FF 100%);
+      --grad-soft: linear-gradient(135deg, #EEF0FF 0%, #E7F2FF 100%);
+      --primary: #4F7CFF;
+      --primary-2: #6AA8FF;
+      --ink: #15172B;
+      --ink-2: #5A5E78;
+      --ink-3: #9A9EB5;
+      --line: #ECEEF5;
+      --line-2: #E0E3EE;
+      --card: #FFFFFF;
+      --bg: #F5F6FB;
+      --fill: #F1F3FA;
+      --stage: #DDE0EC;
+      --green: #1FB573;
+      --amber: #FF9F2E;
+      --sky: #6AA8FF;
+      --danger: #F0506E;
+      --r-lg: 24px;
+      --r-md: 16px;
+      --r-sm: 12px;
+      --shadow: 0 10px 34px rgba(40, 46, 110, .10);
+      --shadow-card: 0 2px 16px rgba(40, 46, 110, .06);
+      --shadow-btn: 0 10px 22px rgba(79, 124, 255, .28);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+      background: var(--stage);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      overflow: hidden;
+      letter-spacing: -.01em;
+      word-break: keep-all;
+    }
+
+    .hero__tag,
+    .hero__btn,
+    .tab span,
+    .badge,
+    .seg button,
+    .cta,
+    .best-btn,
+    .textbtn,
+    .chip,
+    .hh-btn,
+    .ph-tag,
+    .rc-time b,
+    .search span {
+      white-space: nowrap;
+    }
+
+    #stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100dvh;
+    }
+
+    .scale-wrap {
+      transform-origin: center center;
+    }
+
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #0c0d14;
+      border-radius: 54px;
+      padding: 13px;
+      box-shadow: 0 44px 90px rgba(20, 24, 55, .42), 0 0 0 2px #2a2c3a;
+      flex: 0 0 auto;
+    }
+
+    .phone__screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      border-radius: 42px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notch {
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 33px;
+      background: #0c0d14;
+      border-radius: 20px;
+      z-index: 60;
+    }
+
+    @media(max-width:480px) {
+      body {
+        background: var(--bg);
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .phone__screen {
+        border-radius: 0;
+      }
+
+      .notch {
+        display: none;
+      }
+    }
+
+    .statusbar {
+      height: 50px;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px 0 32px;
+      font-size: 15px;
+      font-weight: 600;
+      z-index: 50;
+    }
+
+    .statusbar .sb-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .appbar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px 12px;
+    }
+
+    .appbar h1 {
+      font-size: 17px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .appbar .ab-side {
+      min-width: 56px;
+      display: flex;
+      align-items: center;
+    }
+
+    .appbar .ab-side.right {
+      justify-content: flex-end;
+    }
+
+    .iconbtn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 11px;
+      cursor: pointer;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .iconbtn:active {
+      background: rgba(0, 0, 0, .05);
+    }
+
+    .scroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 18px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .scroll::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 20px 14px;
+    }
+
+    .steps .dot {
+      height: 4px;
+      border-radius: 4px;
+      background: var(--line-2);
+      flex: 1;
+    }
+
+    .steps .dot.on {
+      background: var(--primary);
+    }
+
+    .steps .dot.done {
+      background: var(--primary);
+      opacity: .4;
+    }
+
+    .section-h {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.34;
+      padding: 6px 20px 14px;
+    }
+
+    .section-h em {
+      font-style: normal;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subhint {
+      padding: 0 20px 14px;
+      font-size: 12.5px;
+      color: var(--ink-3);
+    }
+
+    .subhint.tight {
+      margin-top: -8px;
+    }
+
+    .list {
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 수정됨 - rank 카드 레이아웃 (체크박스 제거, 장소추천 버튼 추가) */
+    .rank {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 14px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .rank.sel {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79, 124, 255, .14);
+    }
+
+    .rnum {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: #ECEBFF;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .rank.sel .rnum {
+      background: var(--grad);
+      color: #fff;
+    }
+
+    .rmeta {
+      flex: 1;
+    }
+
+    .rmeta b {
+      font-size: 15.5px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .rmeta small {
+      font-size: 12px;
+      color: var(--ink-3);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* 수정됨 - 장소추천 버튼 스타일 (기존 체크박스 자리) */
+    .place-rec-btn {
+      flex: 0 0 auto;
+      border: none;
+      background: var(--grad-soft);
+      color: var(--primary);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 11px;
+      border-radius: 9px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: .14s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .place-rec-btn:active {
+      opacity: .8;
+      transform: scale(.96);
+    }
+
+    .rank.sel .place-rec-btn {
+      background: rgba(79, 124, 255, .12);
+      color: var(--primary);
+    }
+
+    .cta-wrap {
+      flex: 0 0 auto;
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(0deg, var(--bg) 72%, rgba(245, 246, 251, 0));
+    }
+
+    .cta {
+      display: block;
+      width: 100%;
+      border: none;
+      background: var(--grad);
+      color: #fff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow-btn);
+      transition: transform .12s;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .cta:active {
+      transform: scale(.98);
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      transform: translateX(-50%) translateY(14px);
+      background: rgba(21, 23, 43, .95);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 13px 20px;
+      border-radius: 14px;
+      opacity: 0;
+      transition: .3s;
+      z-index: 80;
+      white-space: nowrap;
+      max-width: 300px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* v2 테마 오버라이드 */
+    :root {
+      --r-lg: 16px;
+      --r-md: 12px;
+      --r-sm: 10px;
+      --ink: #191F28;
+      --ink-2: #4E5968;
+      --ink-3: #8B95A1;
+      --line: #EFF1F5;
+      --line-2: #E5E8EE;
+      --fill: #F4F6F9;
+      --bg: #FFFFFF;
+      --stage: #E7EAF0;
+      --shadow: 0 2px 10px rgba(30, 40, 90, .06);
+      --shadow-card: none;
+      --shadow-btn: 0 6px 18px rgba(79, 124, 255, .20);
+    }
+
+    body {
+      background: var(--stage);
+      letter-spacing: -.015em;
+    }
+
+    .phone__screen {
+      background: #fff;
+    }
+
+    @media(max-width:480px) {
+      body {
+        background: #fff;
+      }
+    }
+
+    .hh-deco,
+    .hh-deco2,
+    .b-deco,
+    .ph-deco,
+    .hero__deco,
+    .hero__deco2,
+    .place-hero svg {
+      display: none !important;
+    }
+
+    .rank,
+    .dir-place {
+      border-radius: 12px !important;
+      box-shadow: none !important;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .section-h {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.32;
+      padding: 8px 20px 8px;
+    }
+
+    .subhint.tight {
+      margin-top: -2px;
+    }
+
+    .subhint {
+      font-size: 13px;
+      color: var(--ink-3);
+    }
+
+    .statusbar {
+      height: 46px;
+    }
+
+    .appbar {
+      padding: 4px 12px 14px;
+    }
+
+    .appbar h1,
+    .appbar.plain h1 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .steps {
+      padding: 0 20px 18px;
+    }
+
+    .steps .dot {
+      height: 3px;
+    }
+
+    #ranks {
+      gap: 12px;
+    }
+
+    .rank {
+      padding: 18px 16px;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color .14s, background .14s;
+    }
+
+    .rank .rnum {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--fill);
+      color: var(--ink-3);
+      font-size: 14px;
+    }
+
+    .rank.sel {
+      border-color: var(--primary);
+      background: #F6F8FF;
+      box-shadow: none !important;
+    }
+
+    .rank.sel .rnum {
+      background: var(--grad);
+      color: #fff;
+    }
+
+    .rank .rmeta b {
+      font-size: 16px;
+    }
+
+    .cta-wrap {
+      background: linear-gradient(0deg, #fff 74%, rgba(255, 255, 255, 0));
+    }
+
+    .cta {
+      border-radius: 12px;
+      font-weight: 700;
+      padding: 16px;
+      box-shadow: none;
+    }
+
+    .cta:not(.disabled):not(.ghost) {
+      box-shadow: var(--shadow-btn);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="stage">
+    <div class="scale-wrap">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="phone__screen">
+
+          <div class="statusbar">
+            <span>9:41</span>
+            <div class="sb-right">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+                <rect x="0" y="7" width="3" height="5" rx="1" />
+                <rect x="5" y="4.5" width="3" height="7.5" rx="1" />
+                <rect x="10" y="2" width="3" height="10" rx="1" />
+                <rect x="15" y="0" width="3" height="12" rx="1" />
+              </svg>
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <path d="M1 4.2A11 11 0 0 1 16 4.2M3.4 6.8a7.3 7.3 0 0 1 10.2 0M5.9 9.3a3.7 3.7 0 0 1 5.2 0" />
+                <circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none" />
+              </svg>
+              <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
+                <rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity=".4" stroke-width="1" />
+                <rect x="3" y="3" width="17" height="7" rx="1.5" fill="currentColor" />
+                <rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" fill-opacity=".5" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="appbar plain">
+            <!-- 뒤로가기: transport.html로 고정 -->
+            <div class="ab-side"><a class="iconbtn" href="transport.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg></a></div>
+            <h1>중간지점</h1>
+            <div class="ab-side right"></div>
+          </div>
+          <div class="steps"><i class="dot done"></i><i class="dot done"></i><i class="dot on"></i></div>
+
+          <div class="scroll">
+            <h2 class="section-h">중간지점을 선택하고<br><em>장소를 추천</em>받으세요</h2>
+            <!-- 수정됨 - 안내 문구 변경 -->
+            <p class="subhint tight">항목을 선택 후 장소추천 버튼을 눌러보세요</p>
+
+            <div class="list" id="ranks">
+
+              <!-- 수정됨 - 체크박스(.rcheck) 제거 → 장소추천 버튼(.place-rec-btn) 추가 -->
+              <div class="rank sel" data-name="을지로입구역">
+                <div class="rnum">1</div>
+                <div class="rmeta">
+                  <b>을지로입구역</b>
+                  <small>평균 이동 28분 · 최대 편차 7분</small>
+                </div>
+                <a class="place-rec-btn" href="category.html">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  장소추천
+                </a>
+              </div>
+
+              <div class="rank" data-name="왕십리역">
+                <div class="rnum">2</div>
+                <div class="rmeta">
+                  <b>왕십리역</b>
+                  <small>평균 이동 29분 · 대중교통 편리</small>
+                </div>
+                <a class="place-rec-btn" href="category.html">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  장소추천
+                </a>
+              </div>
+
+              <div class="rank" data-name="충무로역">
+                <div class="rnum">3</div>
+                <div class="rmeta">
+                  <b>충무로역</b>
+                  <small>평균 이동 30분 · 도보 균형 우수</small>
+                </div>
+                <a class="place-rec-btn" href="category.html">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  장소추천
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 수정됨 - 하단 버튼 길찾기 1개로 고정 (stage2 분기 제거) -->
+          <div class="cta-wrap">
+            <a class="cta" id="mid-cta" href="directions.html">길찾기 보기</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      "use strict";
+
+      /* ── 화면 스케일 맞춤 ── */
+      function fit() {
+        var wrap = document.querySelector(".scale-wrap");
+        if (!wrap) return;
+        if (window.innerWidth <= 480) { wrap.style.transform = "none"; return; }
+        var s = Math.min((window.innerWidth - 24) / 390, (window.innerHeight - 24) / 844, 1.08);
+        wrap.style.transform = "scale(" + s + ")";
+      }
+      window.addEventListener("resize", fit);
+      window.addEventListener("load", fit);
+      fit();
+
+      /* ── 토스트 메시지 ── */
+      var toastTimer;
+      function toast(msg) {
+        var el = document.getElementById("toast");
+        if (!el) {
+          el = document.createElement("div");
+          el.className = "toast";
+          el.id = "toast";
+          (document.querySelector(".phone__screen") || document.body).appendChild(el);
+        }
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2000);
+      }
+
+      /* ── 페이지 이동 ── */
+      function navigate(href) {
+        location.href = href; // 수정됨: 검정화면 전환 제거
+      }
+
+      /* ── 클릭 이벤트 위임 ── */
+      document.addEventListener("click", function (e) {
+        // 토스트
+        var t = e.target.closest("[data-toast]");
+        if (t) toast(t.getAttribute("data-toast"));
+
+        // data-nav 이동 (버튼/링크)
+        var n = e.target.closest("[data-nav]");
+        if (n && !n.classList.contains("disabled")) {
+          e.preventDefault();
+          navigate(n.getAttribute("data-nav"));
+        }
+
+        // 수정됨 - 장소추천 버튼 클릭 시 해당 rank 항목 sel 처리 후 이동
+        var recBtn = e.target.closest(".place-rec-btn");
+        if (recBtn) {
+          e.preventDefault();
+          var parentRank = recBtn.closest(".rank");
+          if (parentRank) {
+            // 선택된 중간지점 저장
+            document.querySelectorAll("#ranks .rank").forEach(function (x) { x.classList.remove("sel"); });
+            parentRank.classList.add("sel");
+            try { localStorage.setItem("moyeo_center", parentRank.getAttribute("data-name")); } catch (e2) { }
+          }
+          navigate("category.html");
+          return;
+        }
+
+        // 수정됨 - 하단 길찾기 버튼 클릭 처리
+        var ctaBtn = e.target.closest("#mid-cta");
+        if (ctaBtn) {
+          e.preventDefault();
+          // 선택된 중간지점 저장
+          var selRank = document.querySelector("#ranks .rank.sel");
+          if (selRank) {
+            try { localStorage.setItem("moyeo_center", selRank.getAttribute("data-name")); } catch (e3) { }
+          }
+          navigate("directions.html");
+          return;
+        }
+      });
+
+      /* ── rank 항목 클릭 시 선택 처리 ── */
+      var ranks = document.querySelectorAll("#ranks .rank");
+      if (ranks.length) {
+        // localStorage에 저장된 중간지점 불러오기
+        var saved = null;
+        try { saved = localStorage.getItem("moyeo_center"); } catch (e) { }
+        var names = Array.prototype.map.call(ranks, function (x) { return x.getAttribute("data-name"); });
+
+        // 저장된 값이 있으면 해당 항목 sel 처리
+        if (saved && names.indexOf(saved) > -1) {
+          ranks.forEach(function (x) {
+            x.classList.toggle("sel", x.getAttribute("data-name") === saved);
+          });
+        }
+
+        ranks.forEach(function (r) {
+          r.addEventListener("click", function (e) {
+            // 장소추천 버튼 클릭은 위에서 처리하므로 여기선 무시
+            if (e.target.closest(".place-rec-btn")) return;
+            // rank 카드 클릭 시 선택
+            ranks.forEach(function (x) { x.classList.remove("sel"); });
+            r.classList.add("sel");
+            try { localStorage.setItem("moyeo_center", r.getAttribute("data-name")); } catch (e2) { }
+          });
+        });
+
+        // 저장된 값 없으면 첫 번째 sel 항목 저장
+        var selName = document.querySelector("#ranks .rank.sel");
+        if (selName && !saved) {
+          try { localStorage.setItem("moyeo_center", selName.getAttribute("data-name")); } catch (e) { }
+        }
+      }
+
+      window.MOYEO = { toast: toast, navigate: navigate, fit: fit };
+    })();
+  </script>
+</body>
+</html>

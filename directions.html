@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>모여 · 길찾기 결과</title>
+<style>
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+:root{
+  --grad:linear-gradient(135deg,#4F7CFF 0%,#6AA8FF 100%);
+  --grad-soft:linear-gradient(135deg,#EEF0FF 0%,#E7F2FF 100%);
+  --primary:#4F7CFF; --primary-2:#6AA8FF;
+  --ink:#191F28; --ink-2:#4E5968; --ink-3:#8B95A1;
+  --line:#EFF1F5; --line-2:#E5E8EE; --card:#FFFFFF; --bg:#FFFFFF; --fill:#F4F6F9; --stage:#E7EAF0;
+  --green:#1FB573; --amber:#FF9F2E; --sky:#6AA8FF; --danger:#F0506E;
+  --r-lg:16px; --r-md:12px; --r-sm:10px;
+  --shadow:0 2px 10px rgba(30,40,90,.06);
+  --shadow-card:none;
+  --shadow-btn:0 6px 18px rgba(79,124,255,.20);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  background:var(--stage);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  min-height:100dvh;overflow:hidden;letter-spacing:-.015em;word-break:keep-all;}
+#stage{display:flex;align-items:center;justify-content:center;width:100%;height:100dvh;}
+.scale-wrap{transform-origin:center center;}
+.phone{position:relative;width:390px;height:844px;background:#0c0d14;border-radius:54px;padding:13px;
+  box-shadow:0 44px 90px rgba(20,24,55,.42),0 0 0 2px #2a2c3a;flex:0 0 auto;}
+.phone__screen{position:relative;width:100%;height:100%;background:#fff;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;}
+.notch{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:120px;height:33px;background:#0c0d14;border-radius:20px;z-index:60;}
+@media(max-width:480px){body{background:#fff;}.phone{width:100vw;height:100dvh;border-radius:0;padding:0;box-shadow:none;}.phone__screen{border-radius:0;}.notch{display:none;}}
+
+.statusbar{height:46px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font-size:15px;font-weight:600;z-index:50;}
+.statusbar .sb-right{display:flex;align-items:center;gap:7px;}
+.appbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:4px 12px 14px;}
+.appbar h1{font-size:17px;font-weight:700;white-space:nowrap;}
+.appbar .ab-side{min-width:56px;display:flex;align-items:center;}
+.appbar .ab-side.right{justify-content:flex-end;}
+.iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:11px;cursor:pointer;color:inherit;text-decoration:none;}
+.iconbtn:active{background:rgba(0,0,0,.05);}
+
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding-bottom:18px;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{width:0;}
+
+.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex:0 0 auto;}
+.av-su{background:#4F7CFF;} .av-ye{background:#1FB573;} .av-wo{background:#FF9F2E;} .av-ha{background:#6AA8FF;}
+
+/* 수정됨: 상단 모임 장소 카드 — 역명만 표시 */
+.dir-place{margin:6px 20px 0;padding:18px;display:flex;align-items:center;gap:15px;
+  border-radius:12px;border:1px solid var(--line);background:#fff;}
+.dir-place .dp-thumb{width:56px;height:56px;border-radius:10px;background:var(--grad);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;color:#fff;}
+.dir-place .dp-meta small{font-size:12px;color:var(--ink-3);font-weight:600;display:block;margin-bottom:4px;}
+.dir-place .dp-meta b{font-size:19px;font-weight:800;display:block;}
+
+/* 참여자별 이동 정보 */
+.block-h{font-size:16px;font-weight:800;padding:22px 20px 4px;}
+.block-h small{display:block;font-size:12px;color:var(--ink-3);font-weight:600;margin-top:3px;}
+.route-list{padding:6px 20px 0;display:flex;flex-direction:column;gap:12px;}
+.route-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:15px;}
+.route-card .rc-meta{flex:1;min-width:0;}
+.route-card .rc-meta b{font-size:15px;font-weight:700;display:block;margin-bottom:6px;}
+.route-card .rc-path{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);font-weight:600;}
+.route-card .rc-path .arr{color:var(--ink-3);}
+.route-card .rc-time{text-align:right;flex:0 0 auto;}
+.route-card .rc-time b{font-size:17px;font-weight:800;color:var(--primary);display:block;white-space:nowrap;}
+.route-card .rc-time small{font-size:11px;color:var(--ink-3);font-weight:600;}
+
+/* CTA 버튼 */
+.cta-wrap{flex:0 0 auto;padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,#fff 74%,rgba(255,255,255,0));}
+.cta{display:block;width:100%;border:none;background:var(--grad);color:#fff;font-family:inherit;
+  font-size:16px;font-weight:700;padding:16px;border-radius:12px;cursor:pointer;
+  box-shadow:var(--shadow-btn);transition:transform .12s;text-align:center;text-decoration:none;}
+.cta:active{transform:scale(.98);}
+
+/* 완료 오버레이 */
+.toast{position:absolute;left:50%;bottom:120px;transform:translateX(-50%) translateY(14px);
+  background:rgba(21,23,43,.95);color:#fff;font-size:13.5px;font-weight:600;padding:13px 20px;
+  border-radius:14px;opacity:0;transition:.3s;z-index:80;white-space:nowrap;max-width:300px;
+  text-align:center;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.complete{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;padding:40px;opacity:0;visibility:hidden;transition:.4s;z-index:90;}
+.complete.show{background:rgba(255,255,255,.92);backdrop-filter:blur(6px);opacity:1;visibility:visible;}
+.complete .ck{width:78px;height:78px;border-radius:50%;background:var(--grad);display:flex;
+  align-items:center;justify-content:center;margin-bottom:22px;box-shadow:var(--shadow-btn);
+  transform:scale(.6);transition:.4s .1s;}
+.complete.show .ck{transform:scale(1);}
+.complete h2{font-size:23px;font-weight:800;margin-bottom:10px;}
+.complete p{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:26px;}
+.complete .cbtn{background:var(--grad);color:#fff;border:none;font-family:inherit;font-size:15px;
+  font-weight:700;padding:14px 30px;border-radius:14px;cursor:pointer;text-decoration:none;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scale-wrap">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone__screen">
+
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="sb-right">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2A11 11 0 0 1 16 4.2M3.4 6.8a7.3 7.3 0 0 1 10.2 0M5.9 9.3a3.7 3.7 0 0 1 5.2 0"/><circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none"/></svg>
+          <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity=".4" stroke-width="1"/><rect x="3" y="3" width="17" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" fill-opacity=".5"/></svg>
+        </div>
+      </div>
+
+      <div class="appbar plain">
+        <div class="ab-side"><a class="iconbtn" href="result.html?stage=2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a></div>
+        <h1>길찾기 결과</h1>
+        <div class="ab-side right"></div>
+      </div>
+
+      <div class="scroll">
+
+        <!-- 수정됨: 모임 장소 — 역명만 표시 (장소명 제거) -->
+        <div class="dir-place">
+          <div class="dp-thumb"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="dp-meta">
+            <small>모임 장소</small>
+            <!-- 수정됨: JS에서 역명만 채워줌 -->
+            <b id="dir-place-name">을지로입구역</b>
+          </div>
+        </div>
+
+        <!-- 수정됨: 장소 설명 섹션 제거, 참여자 이동 정보를 바로 배치 -->
+        <div class="block-h">참여자 이동 정보<small>모두 <span class="dir-dest">을지로입구역</span>으로 모여요</small></div>
+        <div class="route-list">
+          <div class="route-card">
+            <div class="avatar av-wo">원</div>
+            <div class="rc-meta"><b>원희</b><div class="rc-path"><span>신촌역</span><span class="arr">→</span><span class="dir-dest">을지로입구역</span></div></div>
+            <div class="rc-time"><b>25분</b><small>소요시간</small></div>
+          </div>
+          <div class="route-card">
+            <div class="avatar av-ye">예</div>
+            <div class="rc-meta"><b>예빈</b><div class="rc-path"><span>홍대입구역</span><span class="arr">→</span><span class="dir-dest">을지로입구역</span></div></div>
+            <div class="rc-time"><b>22분</b><small>소요시간</small></div>
+          </div>
+          <div class="route-card">
+            <div class="avatar av-ha">한</div>
+            <div class="rc-meta"><b>한별</b><div class="rc-path"><span>강남역</span><span class="arr">→</span><span class="dir-dest">을지로입구역</span></div></div>
+            <div class="rc-time"><b>24분</b><small>소요시간</small></div>
+          </div>
+          <div class="route-card">
+            <div class="avatar av-su">수</div>
+            <div class="rc-meta"><b>수연</b><div class="rc-path"><span>왕십리역</span><span class="arr">→</span><span class="dir-dest">을지로입구역</span></div></div>
+            <div class="rc-time"><b>15분</b><small>소요시간</small></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 수정됨: 버튼 텍스트 변경 -->
+      <div class="cta-wrap"><button class="cta" id="confirm-btn">중간지점 확정하기</button></div>
+
+      <!-- 수정됨: 완료 메시지 — "(확정된 중간지점)과 길찾기 정보를 모임 멤버에게 공유했어요." -->
+      <div class="complete" id="complete">
+        <div class="ck"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h2>모임이 확정됐어요!</h2>
+        <p id="complete-msg"><b id="complete-place">을지로입구역</b>과 길찾기 정보를 모임 멤버에게 공유했어요.</p>
+        <a class="cbtn" data-nav="index.html" href="index.html">홈으로 돌아가기</a>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  function fit() {
+    var wrap = document.querySelector(".scale-wrap");
+    if (!wrap) return;
+    if (window.innerWidth <= 480) { wrap.style.transform = "none"; return; }
+    var s = Math.min((window.innerWidth - 24) / 390, (window.innerHeight - 24) / 844, 1.08);
+    wrap.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+  window.addEventListener("load", fit);
+  fit();
+
+  var toastTimer;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) { el = document.createElement("div"); el.className = "toast"; el.id = "toast"; (document.querySelector(".phone__screen") || document.body).appendChild(el); }
+    el.textContent = msg; el.classList.add("show"); clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2000);
+  }
+
+  /* 수정됨: 검정화면 전환 제거 */
+  function navigate(href) { location.href = href; }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-toast]"); if (t) toast(t.getAttribute("data-toast"));
+    var n = e.target.closest("[data-nav]"); if (n && !n.classList.contains("disabled")) { e.preventDefault(); navigate(n.getAttribute("data-nav")); }
+  });
+
+  /* 수정됨: dir-place-name 과 complete-place 모두 역명만 표시 (장소명 제거) */
+  var dirName = document.getElementById("dir-place-name");
+  if (dirName) {
+    var center2 = "을지로입구역";
+    try { center2 = localStorage.getItem("moyeo_center") || center2; } catch (e) {}
+
+    /* 역명만 표시 */
+    dirName.textContent = center2;
+
+    /* 참여자 이동 목적지도 역명으로 통일 */
+    document.querySelectorAll(".dir-dest").forEach(function (el) { el.textContent = center2; });
+
+    /* 수정됨: 완료 메시지도 역명만 */
+    var cp = document.getElementById("complete-place");
+    if (cp) cp.textContent = center2;
+  }
+
+  /* 중간지점 확정 버튼 */
+  var confirmBtn = document.getElementById("confirm-btn");
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", function () {
+      var c = document.getElementById("complete");
+      if (c) c.classList.add("show");
+    });
+  }
+
+  window.MOYEO = { toast: toast, navigate: navigate, fit: fit };
+})();
+</script>
+</body>
+</html>
